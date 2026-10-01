@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: temporal-worker
+  namespace: temporal-app
+  labels:
+    app.kubernetes.io/name: temporal-worker
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: temporal-worker
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: temporal-worker
+    spec:
+      containers:
+      - name: worker
+        image: temporal-worker:local
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: TEMPORAL_HOST_PORT
+          value: "temporal-frontend.temporal.svc.cluster.local:7233"
+        - name: TEMPORAL_NAMESPACE
+          value: "default"
+        - name: TEMPORAL_TASK_QUEUE
+          value: "TEMPORAL_LEARNING_TASK_QUEUE"
+        - name: TEMPORAL_INSECURE
+          value: "true"
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "200m"
+          requests:
+            memory: "32Mi"
+            cpu: "50m"

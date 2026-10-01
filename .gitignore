@@ -1,6 +1,7 @@
-# Root Binaries
+# Root Binaries & Build Artifacts
 /worker
 /starter
+bin/
 *.exe
 *.test
 

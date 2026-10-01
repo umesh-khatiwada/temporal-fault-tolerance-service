@@ -1,0 +1,46 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: temporal-e2e-test
+  namespace: temporal-app
+spec:
+  backoffLimit: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: temporal-e2e-test
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: e2e-runner
+        image: temporal-starter:local
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          set -e
+          echo "=========================================================="
+          echo " Starting End-to-End Temporal Test Suite on Kubernetes"
+          echo "=========================================================="
+
+          echo "\n[Test 1/3] Triggering Module 01: Basic Fund Transfer..."
+          /app/starter transfer
+
+          echo "\n[Test 2/3] Triggering Module 03: Saga Distributed Transaction (with compensation rollback)..."
+          /app/starter saga --fail
+
+          echo "\n[Test 3/3] Triggering Module 04: Concurrent Child Workflows..."
+          /app/starter batch
+
+          echo "\n=========================================================="
+          echo " ALL KUBERNETES TEMPORAL WORKFLOW TESTS PASSED!"
+          echo "=========================================================="
+        env:
+        - name: TEMPORAL_HOST_PORT
+          value: "temporal-frontend.temporal.svc.cluster.local:7233"
+        - name: TEMPORAL_NAMESPACE
+          value: "default"
+        - name: TEMPORAL_TASK_QUEUE
+          value: "TEMPORAL_LEARNING_TASK_QUEUE"
+        - name: TEMPORAL_INSECURE
+          value: "true"
