@@ -1,0 +1,11 @@
+# Root Binaries
+/worker
+/starter
+*.exe
+*.test
+
+# Environment & Certificates
+.env
+*.pem
+*.crt
+*.key
